@@ -19,6 +19,16 @@ impl Block{
         hasher.update(input);
         hex::encode(hasher.finalize())
     }
+
+    fn genesis() ->Self {
+        let index = 0; 
+        let timestamp = Utc::now().timestamp(); 
+        let data = String::from("the is the first block");
+        let previous_hash= String::from("0");
+        let hash = Block::calculate_hash(index, timestamp, &data, &previous_hash);
+
+        Block {index, timestamp, data, previous_hash, hash}
+    }
 }
 
 fn main(){
