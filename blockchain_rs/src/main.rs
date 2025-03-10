@@ -47,14 +47,28 @@ impl BlockChain {
             chain: vec![Block::genesis()],
         }
     }
+
+    fn addBlock(&mut self, data: String) {
+        let previous_block = self.chain.last().unwrap();
+        let index = previous_block.index + 1;
+        let timestamp = Utc::now().timestamp();
+        let previous_hash = previous_block.hash.clone();
+        let hash = Block::calculate_hash(index, timestamp, &data, &previous_hash);
+        let new_block = Block {
+            index: index,
+            timestamp: timestamp,
+            data: data,
+            previous_hash: previous_hash,
+            hash: hash,
+        };
+        self.chain.push(new_block);
+    }
 }
 
 fn main() {
-    println!(
-        " this is the first line in our journey of 
-               a BlockChain from scratch"
-    );
+    println!("our BlockChain from scratch");
 
-    let blockchain = BlockChain::new();
+    let mut blockchain = BlockChain::new();
+    blockchain.addBlock(String::from("this is the first block after genesis block"));
     println!("the genesis block is {:#?}", blockchain);
 }
