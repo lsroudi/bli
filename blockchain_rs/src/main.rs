@@ -63,12 +63,36 @@ impl BlockChain {
         };
         self.chain.push(new_block);
     }
+
+    fn is_valid(&self) -> bool {
+        for i in 1..self.chain.len() {
+            let current = &self.chain[i];
+            let previous = &self.chain[i - 1];
+
+            if current.previous_hash != previous.hash {
+                return false;
+            }
+
+            let current_hash = Block::calculate_hash(
+                current.index,
+                current.timestamp,
+                &current.data,
+                &current.previous_hash,
+            );
+
+            if current_hash != current.hash {
+                return false;
+            }
+        }
+        true
+    }
 }
 
 fn main() {
     println!("our BlockChain from scratch");
 
     let mut blockchain = BlockChain::new();
-    blockchain.addBlock(String::from("this is the first block after genesis block"));
+    blockchain.add_block(String::from("this is the first block after genesis block"));
     println!("the genesis block is {:#?}", blockchain);
+    println!("our block chain is valid : {}", blockchain.is_valid())
 }
