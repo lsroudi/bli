@@ -48,7 +48,7 @@ impl BlockChain {
         }
     }
 
-    fn addBlock(&mut self, data: String) {
+    fn add_block(&mut self, data: String) {
         let previous_block = self.chain.last().unwrap();
         let index = previous_block.index + 1;
         let timestamp = Utc::now().timestamp();
