@@ -55,11 +55,11 @@ impl BlockChain {
         let previous_hash = previous_block.hash.clone();
         let hash = Block::calculate_hash(index, timestamp, &data, &previous_hash);
         let new_block = Block {
-            index: index,
-            timestamp: timestamp,
-            data: data,
-            previous_hash: previous_hash,
-            hash: hash,
+            index,
+            timestamp,
+            data,
+            previous_hash,
+            hash,
         };
         self.chain.push(new_block);
     }
