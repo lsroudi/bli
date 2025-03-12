@@ -2,6 +2,8 @@ use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
+const HASH_DIFFICULTY: usize = 4;
+
 #[derive(Debug, Serialize, Deserialize)]
 struct Block {
     index: u64,
@@ -9,11 +11,21 @@ struct Block {
     data: String,
     previous_hash: String,
     hash: String,
+    nonce: u64,
 }
 
 impl Block {
-    fn calculate_hash(index: u64, timestamp: i64, data: &str, previous_hash: &str) -> String {
-        let input = format!("{},{},{},{}", index, timestamp, data, previous_hash);
+    fn calculate_hash(
+        index: u64,
+        timestamp: i64,
+        data: &str,
+        previous_hash: &str,
+        nonce: u64,
+    ) -> String {
+        let input = format!(
+            "{},{},{},{},{}",
+            index, timestamp, data, previous_hash, nonce
+        );
         let mut hasher = Sha256::new();
         hasher.update(input);
         hex::encode(hasher.finalize())
@@ -24,7 +36,8 @@ impl Block {
         let timestamp = Utc::now().timestamp();
         let data = String::from("the is the first block");
         let previous_hash = String::from("0");
-        let hash = Block::calculate_hash(index, timestamp, &data, &previous_hash);
+        let nonce = 0;
+        let hash = Block::calculate_hash(index, timestamp, &data, &previous_hash, nonce);
 
         Block {
             index,
@@ -32,6 +45,26 @@ impl Block {
             data,
             previous_hash,
             hash,
+            nonce,
+        }
+    }
+
+    fn mine_block(index: u64, timestamp: i64, data: &str, previous_hash: &str) -> Self {
+        let mut nonce = 0;
+        loop {
+            let hash = Block::calculate_hash(index, timestamp, data, previous_hash, nonce);
+
+            if hash.starts_with(&"0".repeat(HASH_DIFFICULTY)) {
+                return Block {
+                    index,
+                    timestamp,
+                    data: data.to_string(),
+                    previous_hash: previous_hash.to_string(),
+                    hash,
+                    nonce,
+                };
+            }
+            nonce += 1;
         }
     }
 }
@@ -53,14 +86,9 @@ impl BlockChain {
         let index = previous_block.index + 1;
         let timestamp = Utc::now().timestamp();
         let previous_hash = previous_block.hash.clone();
-        let hash = Block::calculate_hash(index, timestamp, &data, &previous_hash);
-        let new_block = Block {
-            index,
-            timestamp,
-            data,
-            previous_hash,
-            hash,
-        };
+
+        let new_block = Block::mine_block(index, timestamp, &data, &previous_hash);
+
         self.chain.push(new_block);
     }
 
@@ -78,6 +106,7 @@ impl BlockChain {
                 current.timestamp,
                 &current.data,
                 &current.previous_hash,
+                current.nonce,
             );
 
             if current_hash != current.hash {
