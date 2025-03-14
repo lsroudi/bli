@@ -1,4 +1,5 @@
 use crate::block::Block;
+use crate::transaction::Transaction;
 use chrono::Utc;
 
 #[derive(Debug)]
@@ -18,8 +19,9 @@ impl BlockChain {
         let index = previous_block.index + 1;
         let timestamp = Utc::now().timestamp();
         let previous_hash = previous_block.hash.clone();
+        let transactions = vec![Transaction::new()];
 
-        let new_block = Block::mine_block(index, timestamp, &data, &previous_hash);
+        let new_block = Block::mine_block(index, timestamp, &transactions, &data, &previous_hash);
 
         self.chain.push(new_block);
     }
@@ -36,6 +38,7 @@ impl BlockChain {
             let current_hash = Block::calculate_hash(
                 current.index,
                 current.timestamp,
+                &current.transactions,
                 &current.data,
                 &current.previous_hash,
                 current.nonce,

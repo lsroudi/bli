@@ -1,3 +1,4 @@
+use crate::transaction::Transaction;
 use chrono::Utc;
 use hex;
 use serde::{Deserialize, Serialize};
@@ -9,6 +10,7 @@ const HASH_DIFFICULTY: usize = 4;
 pub struct Block {
     pub index: u64,
     pub timestamp: i64,
+    pub transactions: Vec<Transaction>,
     pub data: String,
     pub previous_hash: String,
     pub hash: String,
@@ -19,6 +21,7 @@ impl Block {
     pub fn calculate_hash(
         index: u64,
         timestamp: i64,
+        transactions: &Vec<Transaction>,
         data: &str,
         previous_hash: &str,
         nonce: u64,
@@ -35,14 +38,23 @@ impl Block {
     pub fn genesis() -> Self {
         let index = 0;
         let timestamp = Utc::now().timestamp();
+        let transactions = vec![Transaction::new()];
         let data = String::from("the is the first block");
         let previous_hash = String::from("0");
         let nonce = 0;
-        let hash = Block::calculate_hash(index, timestamp, &data, &previous_hash, nonce);
+        let hash = Block::calculate_hash(
+            index,
+            timestamp,
+            &transactions,
+            &data,
+            &previous_hash,
+            nonce,
+        );
 
         Block {
             index,
             timestamp,
+            transactions,
             data,
             previous_hash,
             hash,
@@ -50,15 +62,23 @@ impl Block {
         }
     }
 
-    pub fn mine_block(index: u64, timestamp: i64, data: &str, previous_hash: &str) -> Self {
+    pub fn mine_block(
+        index: u64,
+        timestamp: i64,
+        transactions: &Vec<Transaction>,
+        data: &str,
+        previous_hash: &str,
+    ) -> Self {
         let mut nonce = 0;
         loop {
-            let hash = Block::calculate_hash(index, timestamp, data, previous_hash, nonce);
+            let hash =
+                Block::calculate_hash(index, timestamp, transactions, data, previous_hash, nonce);
 
             if hash.starts_with(&"0".repeat(HASH_DIFFICULTY)) {
                 return Block {
                     index,
                     timestamp,
+                    transactions: transactions.to_vec(),
                     data: data.to_string(),
                     previous_hash: previous_hash.to_string(),
                     hash,
