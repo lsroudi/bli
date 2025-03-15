@@ -14,14 +14,13 @@ impl BlockChain {
         }
     }
 
-    pub fn add_block(&mut self, data: String) {
+    pub fn add_block(&mut self, transactions: Vec<Transaction>) {
         let previous_block = self.chain.last().unwrap();
         let index = previous_block.index + 1;
         let timestamp = Utc::now().timestamp();
         let previous_hash = previous_block.hash.clone();
-        let transactions = vec![Transaction::new()];
 
-        let new_block = Block::mine_block(index, timestamp, &transactions, &data, &previous_hash);
+        let new_block = Block::mine_block(index, timestamp, &transactions, &previous_hash);
 
         self.chain.push(new_block);
     }
@@ -39,7 +38,6 @@ impl BlockChain {
                 current.index,
                 current.timestamp,
                 &current.transactions,
-                &current.data,
                 &current.previous_hash,
                 current.nonce,
             );
