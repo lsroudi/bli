@@ -1,7 +1,4 @@
-mod block;
-mod blockchain;
-mod transaction;
-mod utils;
+mod runtime;
 
 use blockchain::BlockChain;
 use transaction::Transaction;
